@@ -42,15 +42,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func updateStatusBarLabel() {
         guard let button = statusItem.button else { return }
 
+        let statusBarHeight = NSStatusBar.system.thickness
+
         if let state = viewModel.activeNodeState,
            state.isOnline,
            let snapshot = state.latestSnapshot,
            !snapshot.gpus.isEmpty
         {
-            button.title = state.node.displayName + "\u{2009}"
-
             let gpuUtils = snapshot.gpus.map(\.utilizationPercent)
-            let barView = StatusBarBars(gpuUtils: gpuUtils)
+            let isDark = button.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            let barView = StatusBarBars(
+                title: state.node.displayName,
+                gpuUtils: gpuUtils,
+                isDark: isDark,
+                height: statusBarHeight
+            )
             let renderer = ImageRenderer(content: barView)
             renderer.scale = NSScreen.main?.backingScaleFactor ?? 2.0
 
@@ -64,8 +70,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     )
                 )
                 image.isTemplate = false
+                button.title = ""
                 button.image = image
-                button.imagePosition = .imageTrailing
+                button.imagePosition = .imageOnly
             }
         } else if let state = viewModel.activeNodeState {
             button.title = state.node.displayName + "\u{2009}"
