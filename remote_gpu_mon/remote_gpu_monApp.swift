@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct remote_gpu_monApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+        // Menubar-only app — no main window.
+        // Settings window is managed by AppDelegate.
+        Settings { EmptyView() }
     }
 }
